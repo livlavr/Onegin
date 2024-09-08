@@ -16,10 +16,10 @@ struct data
 bool isLetter(int a);
 bool isUppercase(int a);
 int  swap(size_t* mas, size_t);
-int  output(const data* struct_element);
 int  sort(data* struct_element);
 int  sort_and_output(data* struct_element);
 int  my_strcmp(const char* line1, const char* line2);
+int  output(const data* struct_element, const size_t* type_of_output);
 
 /*
 пустые строки
@@ -99,7 +99,7 @@ int main()
     // // - making array of pointers
 
     sort_and_output(&onegin);
-
+    output(&onegin, onegin.original);
     // //tests
     // for (int j = 0; j < onegin.number_of_lines; j++)
     // {
@@ -186,14 +186,14 @@ int sort(data* struct_element)
     return 0;
 }
 
-int  output(const data* struct_element)
+int  output(const data* struct_element, const size_t* type_of_output)
 {
     char* ptr         = NULL;
     char* end_of_line = NULL;
     for (size_t i = 0; i < struct_element->number_of_lines; i++)
     {
-        ptr         = struct_element->line[struct_element->sorted[i]];
-        end_of_line = struct_element->line[struct_element->sorted[i] + 1];
+        ptr         = struct_element->line[type_of_output[i]];
+        end_of_line = struct_element->line[type_of_output[i] + 1];
         while (ptr < end_of_line)
         {
             printf("%c", *ptr);
@@ -213,6 +213,6 @@ int sort_and_output(data* struct_element)
         (struct_element->rsorted)[i]  = struct_element->number_of_lines - i;
     }
     sort(struct_element);
-    output(struct_element);
+    output(struct_element, struct_element->sorted);
     return 0;
 }

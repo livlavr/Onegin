@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <assert.h>
 
 struct data
 {
@@ -22,7 +23,7 @@ int  sort(data* struct_element);
 int  rsort(data* struct_element);
 int  sort_and_output(data* struct_element);
 int  my_strcmp(const char* line1, const char* line2);
-int  my_reverse_strcmp(const char* line1, const char* line2);
+int  my_reverse_strcmp(char* line1, char* line2);
 int  output(const data* struct_element, const size_t* type_of_output);
 int  text_init(const char* filename, data* struct_element);
 int  count_lines(data* struct_element);
@@ -44,7 +45,7 @@ unicode
 
 int main()
 {
-    const char* filename = "oneginEng.txt";
+    const char* filename = "onegin.txt";
     data_init(filename, &onegin);
 
     sort_and_output(&onegin);
@@ -130,7 +131,7 @@ int data_init(const char* filename, data* struct_element)
     return 0;
 }
 
-int my_strcmp(const char* line1, const char* line2)
+int my_strcmp(const char* line1, const char* line2) //TODO with pointer moving
 {
     int difference = 0;
     int a_ind = 0, b_ind = 0, a = 0, b = 0;
@@ -167,40 +168,29 @@ int my_strcmp(const char* line1, const char* line2)
     return difference;
 }
 
-/*
-WTF?
-onegin.cpp:174:15: error: invalid conversion from 'const char*' to 'char*'
-  174 |     a = line1 + a_ind;
-      |         ~~~~~~^~~~~~~
-      |               |
-      |               const char*
-onegin.cpp:175:15: error: invalid conversion from 'const char*' to 'char*'
-  175 |     b = line2 + b_ind;
-      |         ~~~~~~^~~~~~~
-      |               |
-      |               const char*
-*/
-
-int my_reverse_strcmp(const char* line1, const char* line2)
+int my_reverse_strcmp(char* line1, char* line2) //TODO const?
 {
+    assert(line1 != NULL);
+    assert(line2 != NULL);
+
     int difference = 0, a_ind = -1, b_ind = -1;
-    char* a = 0, *b = 0; //TODO WTF?
+    char* a = 0, *b = 0;
     a = line1 + a_ind;
     b = line2 + b_ind;
-    if (a == '\n')
+    if (*a == '\n')
     {
         --a_ind;
     }
-    else if (a == '\0')
+    else if (*a == '\0')
     {
         a_ind -= 2;
     }
 
-    if (b == '\n')
+    if (*b == '\n')
     {
         --a_ind;
     }
-    else if (b == '\0')
+    else if (*b == '\0')
     {
         a_ind -= 2;
     }
@@ -209,24 +199,26 @@ int my_reverse_strcmp(const char* line1, const char* line2)
     {
         a = line1 + a_ind;
         b = line2 + b_ind;
+        char asimb = *a;
+        char bsimb = *b;
         printf("%d %d", a_ind, b_ind);
-        if (isUppercase(a))
+        if (isUppercase(asimb))
         {
-            a += 32;
+            asimb += 32;
         }
-        if (isUppercase(b))
+        if (isUppercase(bsimb))
         {
-            b += 32;
+            bsimb += 32;
         }
-        if (a == '\n' || a == EOF)
-            return (b == '\n' || b == EOF) ? 0 : -1;
-        if (b == '\n' || b == EOF)
+        if (asimb == '\n' || asimb == EOF)
+            return (bsimb == '\n' || bsimb == EOF) ? 0 : -1;
+        if (bsimb == '\n' || bsimb == EOF)
             return 1;
-        if (isLetter(a))
+        if (isLetter(asimb))
         {
-            if (isLetter(b))
+            if (isLetter(bsimb))
             {
-                        difference += a - b;
+                        difference += asimb - bsimb;
                         --a_ind;
                         --b_ind;
             }
@@ -318,9 +310,9 @@ int sort_and_output(data* struct_element) //TODO make init_index_mas function
         (struct_element->rsorted)[i]  = struct_element->number_of_lines - i;
     }
     sort(struct_element);
-    // rsort(struct_element);
+    rsort(struct_element);
     output(struct_element, struct_element->sorted);
-    // output(struct_element, struct_element->rsorted);
+    output(struct_element, struct_element->rsorted);
 
     return 0;
 }

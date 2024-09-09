@@ -22,7 +22,7 @@ int  swap(size_t* mas, size_t index);
 int  sort(data* struct_element);
 int  rsort(data* struct_element);
 int  sort_and_output(data* struct_element);
-int  my_strcmp(const char* line1, const char* line2);
+int  my_strcmp(char* line1, char* line2);
 int  my_reverse_strcmp(char* line1, char* line2);
 int  output(const data* struct_element, const size_t* type_of_output);
 int  text_init(const char* filename, data* struct_element);
@@ -30,14 +30,14 @@ int  count_lines(data* struct_element);
 int  index_array_init(data* struct_element);
 int  data_init(const char* filename, data* struct_element);
 int  free_data(data* struct_element);
+
 /*
-пустые строки
-алгоритм qsort
-сортировка с конца
-mmap?
+file_output
+unicode
 asserts
 magic numbers
-unicode
+mmap?
+алгоритм qsort
 Бредогенератор :)
 Обмен через буквенную переменную и указатель ull
 Можно дополнять массивы до %8 = 0
@@ -72,7 +72,6 @@ int text_init(const char* filename, data* struct_element) //TODO separate functi
     struct_element->size_of_file = (size_t)buf.st_size + 1; // +1 - for optional '\n'
     struct_element->text = (char*)calloc(struct_element->size_of_file, sizeof(char));
     fread(struct_element->text, sizeof(char), struct_element->size_of_file, file);
-    // fast but doesn't analyze "\t\n" and " \n" and "\n\n"
     fclose(file);
     if (struct_element->text[struct_element->size_of_file - 3] != '\n')
     {
@@ -131,77 +130,16 @@ int data_init(const char* filename, data* struct_element)
     return 0;
 }
 
-int my_strcmp(const char* line1, const char* line2) //TODO with pointer moving
+int my_strcmp(char* line1, char* line2)
 {
     int difference = 0;
-    int a_ind = 0, b_ind = 0, a = 0, b = 0;
+    char asimb = 0, bsimb = 0;
+    char* a = line1;
+    char* b = line2;
     while (difference == 0)
     {
-        a = line1[a_ind];
-        b = line2[b_ind];
-        if (isUppercase(a))
-        {
-            a += 32;
-        }
-        if (isUppercase(b))
-        {
-            b += 32;
-        }
-        if (a == '\n' || a == EOF)
-            return (b == '\n' || b == EOF) ? 0 : -1;
-        if (b == '\n' || b == EOF)
-            return 1;
-        if (isLetter(a))
-        {
-            if (isLetter(b))
-            {
-                        difference += a - b;
-                        ++a_ind;
-                        ++b_ind;
-            }
-            else
-                ++b_ind;
-        }
-        else
-            ++a_ind;
-    }
-    return difference;
-}
-
-int my_reverse_strcmp(char* line1, char* line2) //TODO const?
-{
-    assert(line1 != NULL);
-    assert(line2 != NULL);
-
-    int difference = 0, a_ind = -1, b_ind = -1;
-    char* a = 0, *b = 0;
-    a = line1 + a_ind;
-    b = line2 + b_ind;
-    if (*a == '\n')
-    {
-        --a_ind;
-    }
-    else if (*a == '\0')
-    {
-        a_ind -= 2;
-    }
-
-    if (*b == '\n')
-    {
-        --a_ind;
-    }
-    else if (*b == '\0')
-    {
-        a_ind -= 2;
-    }
-
-    while (difference == 0)
-    {
-        a = line1 + a_ind;
-        b = line2 + b_ind;
-        char asimb = *a;
-        char bsimb = *b;
-        printf("%d %d", a_ind, b_ind);
+        asimb = *a;
+        bsimb = *b;
         if (isUppercase(asimb))
         {
             asimb += 32;
@@ -219,14 +157,57 @@ int my_reverse_strcmp(char* line1, char* line2) //TODO const?
             if (isLetter(bsimb))
             {
                         difference += asimb - bsimb;
-                        --a_ind;
-                        --b_ind;
+                        a++;
+                        b++;
             }
             else
-                --b_ind;
+                b++;
         }
         else
-            --a_ind;
+            a++;
+    }
+    return difference;
+}
+
+int my_reverse_strcmp(char* line1, char* line2) //TODO const?
+{
+    assert(line1 != NULL);
+    assert(line2 != NULL);
+
+    int difference = 0;
+    char* a = line1 - 2;
+    char* b = line2 - 2;
+    char asimb = *a;
+    char bsimb = *b;
+    while (difference == 0)
+    {
+        asimb = *a;
+        bsimb = *b;
+        if (isUppercase(asimb))
+        {
+            asimb += 32;
+        }
+        if (isUppercase(bsimb))
+        {
+            bsimb += 32;
+        }
+        if (asimb == '\n' || asimb == EOF)
+            return (bsimb == '\n' || bsimb == EOF) ? 0 : -1;
+        if (bsimb == '\n' || bsimb == EOF)
+            return 1;
+        if (isLetter(asimb))
+        {
+            if (isLetter(bsimb))
+            {
+                        difference += asimb - bsimb;
+                        a--;
+                        b--;
+            }
+            else
+                b--;
+        }
+        else
+            a--;
     }
     return difference;
     return 0;
@@ -290,10 +271,13 @@ int output(const data* struct_element, const size_t* type_of_output)
     {
         ptr         = (struct_element->line)[(type_of_output[i])];
         end_of_line = (struct_element->line)[(type_of_output[i] + 1)];
-        while (ptr < end_of_line)
+        if (*ptr != '\n')
         {
-            printf("%c", *ptr);
-            ptr++;
+            while (ptr < end_of_line)
+            {
+                printf("%c", *ptr);
+                ptr++;
+            }
         }
     }
     printf("\n");
@@ -307,7 +291,7 @@ int sort_and_output(data* struct_element) //TODO make init_index_mas function
     {
         (struct_element->original)[i] = i;
         (struct_element->sorted)[i]   = i;
-        (struct_element->rsorted)[i]  = struct_element->number_of_lines - i;
+        (struct_element->rsorted)[i]  = i;
     }
     sort(struct_element);
     rsort(struct_element);

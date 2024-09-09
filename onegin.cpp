@@ -3,6 +3,17 @@
 #include <sys/stat.h>
 #include <assert.h>
 
+#include "check_expression.h"
+
+enum ASKI
+{
+    SPACE  = 32,
+    A_CODE = 65,
+    B_CODE = 90,
+    a_CODE = 97,
+    b_CODE = 122
+};
+
 struct data
 {
     size_t  size_of_file    = 0;
@@ -18,24 +29,25 @@ struct data
 
 bool isLetter(int a);
 bool isUppercase(int a);
-int  swap(size_t* mas, size_t index);
 int  sort(data* struct_element);
 int  rsort(data* struct_element);
-int  sort_and_output(data* struct_element);
-int  my_strcmp(char* line1, char* line2);
-int  my_reverse_strcmp(char* line1, char* line2);
-int  output(const data* struct_element, const size_t* type_of_output);
-int  text_init(const char* filename, data* struct_element);
-int  count_lines(data* struct_element);
-int  index_array_init(data* struct_element);
-int  data_init(const char* filename, data* struct_element);
+int  swap(size_t* mas, size_t index);
 int  free_data(data* struct_element);
+int  count_lines(data* struct_element);
+int  my_strcmp(char* line1, char* line2);
+int  init_index_mas(data* struct_element);
+int  sort_and_output(data* struct_element);
+int  index_array_init(data* struct_element);
+int  array_of_pointers(data* struct_element);
+int  my_reverse_strcmp(char* line1, char* line2);
+int  text_scan(const char* filename, data* struct_element);
+int  text_init(const char* filename, data* struct_element);
+int  data_init(const char* filename, data* struct_element);
+int  output(const data* struct_element, const size_t* type_of_output);
 
 /*
 file_output
 unicode
-asserts
-magic numbers
 mmap?
 алгоритм qsort
 Бредогенератор :)
@@ -56,16 +68,19 @@ int main()
 
 bool isLetter(int a)
 {
-    return a == 32 || (a >= 65 && a <= 90) || (a >= 97 && a <= 122);
+    return a == SPACE || (a >= A_CODE && a <= B_CODE) || (a >= a_CODE && a <= b_CODE);
 }
 
 bool isUppercase(int a)
 {
-    return a >= 65 && a <= 90;
+    return a >= A_CODE && a <= B_CODE;
 }
 
-int text_init(const char* filename, data* struct_element) //TODO separate function
+int text_scan(const char* filename, data* struct_element)
 {
+    check_expression(filename != NULL, POINTER_IS_NULL);
+    check_expression(struct_element != NULL, POINTER_IS_NULL);
+
     FILE* file = fopen(filename, "r");
     struct stat buf;
     fstat(fileno(file), &buf);
@@ -77,10 +92,16 @@ int text_init(const char* filename, data* struct_element) //TODO separate functi
     {
         struct_element->text[struct_element->size_of_file - 2] = '\n';
     }
-    //text scan
+
+    return 0;
+}
+
+int array_of_pointers(data* struct_element)
+{
+    check_expression(struct_element != NULL, POINTER_IS_NULL);
 
     char* ptr = struct_element->text;
-    struct_element->line = (char**)calloc(struct_element->number_of_lines, sizeof(char**)); //int* == char** (size)
+    struct_element->line  = (char**)calloc(struct_element->number_of_lines, sizeof(char**));
     *struct_element->line = struct_element->text;
     size_t i = 1;
     while (ptr < struct_element->text + struct_element->size_of_file)
@@ -92,12 +113,25 @@ int text_init(const char* filename, data* struct_element) //TODO separate functi
             i++;
         }
     }
-    // - making array of pointers
+
+    return 0;
+}
+
+int text_init(const char* filename, data* struct_element)
+{
+    check_expression(filename != NULL, POINTER_IS_NULL);
+    check_expression(struct_element != NULL, POINTER_IS_NULL);
+
+    text_scan(filename, struct_element);
+    array_of_pointers(struct_element);
+
     return 0;
 }
 
 int count_lines(data* struct_element)
 {
+    check_expression(struct_element != NULL, POINTER_IS_NULL);
+
     char* ptr = struct_element->text;
     while (ptr < struct_element->text + struct_element->size_of_file)
     {
@@ -114,15 +148,20 @@ int count_lines(data* struct_element)
 
 int index_array_init(data* struct_element)
 {
-    struct_element->sorted = (size_t*)calloc(struct_element->number_of_lines * 3, sizeof(int*));
-    struct_element->rsorted = struct_element->sorted + struct_element->number_of_lines;
+    check_expression(struct_element != NULL, POINTER_IS_NULL);
+
+    struct_element->sorted   = (size_t*)calloc(struct_element->number_of_lines * 3, sizeof(size_t*));
+    struct_element->rsorted  = struct_element->sorted  + struct_element->number_of_lines;
     struct_element->original = struct_element->rsorted + struct_element->number_of_lines;
-    // - sorted, rsorted and original init
+
     return 0;
 }
 
 int data_init(const char* filename, data* struct_element)
 {
+    check_expression(filename != NULL, POINTER_IS_NULL);
+    check_expression(struct_element != NULL, POINTER_IS_NULL);
+
     text_init(filename, struct_element);
     count_lines(struct_element);
     index_array_init(struct_element);
@@ -132,6 +171,9 @@ int data_init(const char* filename, data* struct_element)
 
 int my_strcmp(char* line1, char* line2)
 {
+    check_expression(line1 != NULL, POINTER_IS_NULL);
+    check_expression(line2 != NULL, POINTER_IS_NULL);
+
     int difference = 0;
     char asimb = 0, bsimb = 0;
     char* a = line1;
@@ -149,9 +191,13 @@ int my_strcmp(char* line1, char* line2)
             bsimb += 32;
         }
         if (asimb == '\n' || asimb == EOF)
+        {
             return (bsimb == '\n' || bsimb == EOF) ? 0 : -1;
+        }
         if (bsimb == '\n' || bsimb == EOF)
+        {
             return 1;
+        }
         if (isLetter(asimb))
         {
             if (isLetter(bsimb))
@@ -161,18 +207,23 @@ int my_strcmp(char* line1, char* line2)
                         b++;
             }
             else
+            {
                 b++;
+            }
         }
         else
+        {
             a++;
+        }
     }
+
     return difference;
 }
 
 int my_reverse_strcmp(char* line1, char* line2) //TODO const?
 {
-    assert(line1 != NULL);
-    assert(line2 != NULL);
+    check_expression(line1 != NULL, POINTER_IS_NULL);
+    check_expression(line2 != NULL, POINTER_IS_NULL);
 
     int difference = 0;
     char* a = line1 - 2;
@@ -192,9 +243,13 @@ int my_reverse_strcmp(char* line1, char* line2) //TODO const?
             bsimb += 32;
         }
         if (asimb == '\n' || asimb == EOF)
+        {
             return (bsimb == '\n' || bsimb == EOF) ? 0 : -1;
+        }
         if (bsimb == '\n' || bsimb == EOF)
+        {
             return 1;
+        }
         if (isLetter(asimb))
         {
             if (isLetter(bsimb))
@@ -204,20 +259,27 @@ int my_reverse_strcmp(char* line1, char* line2) //TODO const?
                         b--;
             }
             else
+            {
                 b--;
+            }
         }
         else
+        {
             a--;
+        }
     }
+
     return difference;
     return 0;
 }
 
 int swap(size_t* mas, size_t index)
 {
+    check_expression(mas != NULL, POINTER_IS_NULL);
+
     size_t transit = 0;
-    transit = mas[index];
-    mas[index] = mas[index + 1];
+    transit        = mas[index];
+    mas[index]     = mas[index + 1];
     mas[index + 1] = transit;
 
     return 0;
@@ -225,6 +287,8 @@ int swap(size_t* mas, size_t index)
 
 int sort(data* struct_element)
 {
+    check_expression(struct_element != NULL, POINTER_IS_NULL);
+
     int count_changes = 0;
     do
     {
@@ -245,6 +309,8 @@ int sort(data* struct_element)
 
 int rsort(data* struct_element)
 {
+    check_expression(struct_element != NULL, POINTER_IS_NULL);
+
     int count_changes = 0;
     do
     {
@@ -265,6 +331,9 @@ int rsort(data* struct_element)
 
 int output(const data* struct_element, const size_t* type_of_output)
 {
+    check_expression(struct_element != NULL, POINTER_IS_NULL);
+    check_expression(type_of_output != NULL, POINTER_IS_NULL);
+
     char* ptr         = NULL;
     char* end_of_line = NULL;
     for (size_t i = 0; i < struct_element->number_of_lines; i++)
@@ -285,15 +354,26 @@ int output(const data* struct_element, const size_t* type_of_output)
     return 0;
 }
 
-int sort_and_output(data* struct_element) //TODO make init_index_mas function
+int init_index_mas(data* struct_element)
 {
+    check_expression(struct_element != NULL, POINTER_IS_NULL);
+
     for (size_t i = 0; i < struct_element->number_of_lines; i++)
     {
         (struct_element->original)[i] = i;
-        (struct_element->sorted)[i]   = i;
-        (struct_element->rsorted)[i]  = i;
+        (struct_element->sorted  )[i] = i;
+        (struct_element->rsorted )[i] = i;
     }
-    sort(struct_element);
+
+    return 0;
+}
+
+int sort_and_output(data* struct_element) //TODO make init_index_mas function
+{
+    check_expression(struct_element != NULL, POINTER_IS_NULL);
+
+    init_index_mas(struct_element);
+    sort (struct_element);
     rsort(struct_element);
     output(struct_element, struct_element->sorted);
     output(struct_element, struct_element->rsorted);
@@ -303,6 +383,8 @@ int sort_and_output(data* struct_element) //TODO make init_index_mas function
 
 int free_data(data* struct_element)
 {
+    check_expression(struct_element != NULL, POINTER_IS_NULL);
+
     free(struct_element->text);
     free(struct_element->line);
     free(struct_element->sorted);

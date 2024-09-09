@@ -36,7 +36,7 @@ int  free_data(data* struct_element);
 int  count_lines(data* struct_element);
 int  my_strcmp(char* line1, char* line2);
 int  init_index_mas(data* struct_element);
-int  sort_and_output(data* struct_element);
+int  sort_and_rsort(data* struct_element);
 int  index_array_init(data* struct_element);
 int  array_of_pointers(data* struct_element);
 int  my_reverse_strcmp(char* line1, char* line2);
@@ -44,9 +44,10 @@ int  text_scan(const char* filename, data* struct_element);
 int  text_init(const char* filename, data* struct_element);
 int  data_init(const char* filename, data* struct_element);
 int  output(const data* struct_element, const size_t* type_of_output);
+int  file_output(const char* filename, const data* struct_element,
+                 const size_t* type_of_output, const char* mode);
 
 /*
-file_output
 unicode
 mmap?
 алгоритм qsort
@@ -58,10 +59,15 @@ mmap?
 int main()
 {
     const char* filename = "onegin.txt";
+    const char* output_file = "output.txt";
     data_init(filename, &onegin);
+    init_index_mas(&onegin);
 
-    sort_and_output(&onegin);
-    output(&onegin, onegin.original);
+    sort_and_rsort(&onegin);
+
+    file_output(output_file, &onegin, onegin.sorted, "w");
+    file_output(output_file, &onegin, onegin.rsorted, "a");
+    file_output(output_file, &onegin, onegin.original, "a");
 
     free_data(&onegin);
 }
@@ -331,8 +337,8 @@ int rsort(data* struct_element)
 
 int output(const data* struct_element, const size_t* type_of_output)
 {
-    check_expression(struct_element != NULL, POINTER_IS_NULL);
     check_expression(type_of_output != NULL, POINTER_IS_NULL);
+    check_expression(struct_element != NULL, POINTER_IS_NULL);
 
     char* ptr         = NULL;
     char* end_of_line = NULL;
@@ -354,6 +360,36 @@ int output(const data* struct_element, const size_t* type_of_output)
     return 0;
 }
 
+int  file_output(const char* filename, const data* struct_element, const size_t* type_of_output,
+                 const char* mode)
+{
+    check_expression(type_of_output != NULL, POINTER_IS_NULL);
+    check_expression(struct_element != NULL, POINTER_IS_NULL);
+
+    char* ptr         = NULL;
+    char* end_of_line = NULL;
+    FILE* file = fopen(filename, mode);
+
+    for (size_t i = 0; i < struct_element->number_of_lines; i++)
+    {
+        ptr         = (struct_element->line)[(type_of_output[i])];
+        end_of_line = (struct_element->line)[(type_of_output[i] + 1)];
+        if (*ptr != '\n')
+        {
+            while (ptr < end_of_line)
+            {
+                putc(*ptr, file);
+                ptr++;
+            }
+        }
+    }
+    putc('\n', file);
+
+    fclose(file);
+
+    return 0;
+}
+
 int init_index_mas(data* struct_element)
 {
     check_expression(struct_element != NULL, POINTER_IS_NULL);
@@ -368,15 +404,12 @@ int init_index_mas(data* struct_element)
     return 0;
 }
 
-int sort_and_output(data* struct_element) //TODO make init_index_mas function
+int sort_and_rsort(data* struct_element)
 {
     check_expression(struct_element != NULL, POINTER_IS_NULL);
 
-    init_index_mas(struct_element);
     sort (struct_element);
     rsort(struct_element);
-    output(struct_element, struct_element->sorted);
-    output(struct_element, struct_element->rsorted);
 
     return 0;
 }

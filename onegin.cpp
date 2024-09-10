@@ -1,11 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
-#include <assert.h>
+#include <assert.h> // TODO header is not used
 
+// TODO what is check_expression.h (I can't see this file in your github repo)???
 #include "check_expression.h"
 
-enum ASKI
+enum ASKI // TODO ASCII <---- please spell this right (not ASKI)
+          // TODO I don't understand what the fuck is A_CODE and where are fucking differences between A_CODE and a_CODE
+          // TODO please, use consistent naming rules. Now you're writing A_CODE with a capital letter and a_CODE with a small 'a'
 {
     SPACE  = 32,
     A_CODE = 65,
@@ -14,36 +17,42 @@ enum ASKI
     b_CODE = 122
 };
 
-struct data
+struct data // TODO data - bad naming
 {
     size_t  size_of_file    = 0;
     size_t  number_of_lines = 0;
+    // TODO what is being sorted?
     size_t* sorted          = NULL;
     size_t* rsorted         = NULL;
+    // TODO maybe original_text?
     size_t* original        = NULL;
     char**  line            = NULL;
     char*   text            = NULL;
-} onegin;
+} onegin; // TODO what the fuck, man? For what purpose do u use global variable?
+          // And why did you declare it together with struct decalration? 
+          // Isn't it simplier to declare your struct and then write: "data onegin = {};" ?
+          //
 //why warning when i do onegin -> struct_element in function declaration?
 //how free remember calloced memory if ptr1 = calloc; [ptr1........ptr2.........ptr3.....]
 
+// TODO why did you aligned types and didn't aligned parameters?
 bool isLetter(int a);
-bool isUppercase(int a);
-int  sort(data* struct_element);
-int  rsort(data* struct_element);
-int  swap(size_t* mas, size_t index);
-int  free_data(data* struct_element);
+bool isUppercase(int a); // WHY THE FUCK isLetter() NAME IS WRITTEN IN A camelBack case ----------+
+int  sort(data* struct_element);                                                              //  | AND free_data() IS WRITTEN
+int  rsort(data* struct_element); // TODO rsort?                                              //  | IN A snake_case??
+int  swap(size_t* mas, size_t index);                                                         //  |
+int  free_data(data* struct_element);// <---------------------------------------------------------+
 int  count_lines(data* struct_element);
 int  my_strcmp(char* line1, char* line2);
-int  init_index_mas(data* struct_element);
-int  sort_and_rsort(data* struct_element);
+int  init_index_mas(data* struct_element); // TODO struct_element - bad_naming, what is mas???
+int  sort_and_rsort(data* struct_element); // TODO how am I supposed to guess what is this function doin'?
 int  index_array_init(data* struct_element);
 int  array_of_pointers(data* struct_element);
 int  my_reverse_strcmp(char* line1, char* line2);
 int  text_scan(const char* filename, data* struct_element);
 int  text_init(const char* filename, data* struct_element);
-int  data_init(const char* filename, data* struct_element);
-int  output(const data* struct_element, const size_t* type_of_output);
+int  data_init(const char* filename, data* struct_element); // TODO what is data?
+int  output(const data* struct_element, const size_t* type_of_output); // TODO output what? Does it prints EVERYTHING I want?
 int  file_output(const char* filename, const data* struct_element,
                  const size_t* type_of_output, const char* mode);
 
@@ -89,11 +98,16 @@ int text_scan(const char* filename, data* struct_element)
 
     FILE* file = fopen(filename, "r");
     struct stat buf;
+    // TODO use
     fstat(fileno(file), &buf);
+    // TODO more
     struct_element->size_of_file = (size_t)buf.st_size + 1; // +1 - for optional '\n'
     struct_element->text = (char*)calloc(struct_element->size_of_file, sizeof(char));
+    // TODO spaces
     fread(struct_element->text, sizeof(char), struct_element->size_of_file, file);
     fclose(file);
+    // TODO please
+    // TODO magic numbers
     if (struct_element->text[struct_element->size_of_file - 3] != '\n')
     {
         struct_element->text[struct_element->size_of_file - 2] = '\n';
@@ -106,9 +120,13 @@ int array_of_pointers(data* struct_element)
 {
     check_expression(struct_element != NULL, POINTER_IS_NULL);
 
+    // TODO I do not understand what is ptr. Is it just random pointer or does it have some meaning?
     char* ptr = struct_element->text;
+    // TODO
     struct_element->line  = (char**)calloc(struct_element->number_of_lines, sizeof(char**));
     *struct_element->line = struct_element->text;
+
+    // TODO what the hell is i?
     size_t i = 1;
     while (ptr < struct_element->text + struct_element->size_of_file)
     {
@@ -138,6 +156,7 @@ int count_lines(data* struct_element)
 {
     check_expression(struct_element != NULL, POINTER_IS_NULL);
 
+    // TODO ptr
     char* ptr = struct_element->text;
     while (ptr < struct_element->text + struct_element->size_of_file)
     {
@@ -180,8 +199,11 @@ int my_strcmp(char* line1, char* line2)
     check_expression(line1 != NULL, POINTER_IS_NULL);
     check_expression(line2 != NULL, POINTER_IS_NULL);
 
+    // TODO difference between what?
     int difference = 0;
+    // TODO asimb, bsimb - bad naming
     char asimb = 0, bsimb = 0;
+    // TODO a and b - bad naming
     char* a = line1;
     char* b = line2;
     while (difference == 0)
@@ -190,18 +212,22 @@ int my_strcmp(char* line1, char* line2)
         bsimb = *b;
         if (isUppercase(asimb))
         {
+            // TODO magic number
             asimb += 32;
         }
         if (isUppercase(bsimb))
         {
+            // TODO magic number
             bsimb += 32;
         }
         if (asimb == '\n' || asimb == EOF)
         {
+            // TODO magic number
             return (bsimb == '\n' || bsimb == EOF) ? 0 : -1;
         }
         if (bsimb == '\n' || bsimb == EOF)
         {
+            // TODO magic number
             return 1;
         }
         if (isLetter(asimb))
@@ -232,12 +258,16 @@ int my_reverse_strcmp(char* line1, char* line2) //TODO const?
     check_expression(line2 != NULL, POINTER_IS_NULL);
 
     int difference = 0;
+    // TODO what does it mean a?
     char* a = line1 - 2;
     char* b = line2 - 2;
+    // TODO asimb and bsimb - bad naming
     char asimb = *a;
     char bsimb = *b;
     while (difference == 0)
     {
+        // TODO symbol, not simbol. Is it so hard to spend one more second typing a_symbol instead of a_symb?
+        // TODO if you're using snake_case for variables then use it everywhere
         asimb = *a;
         bsimb = *b;
         if (isUppercase(asimb))
@@ -279,6 +309,7 @@ int my_reverse_strcmp(char* line1, char* line2) //TODO const?
     return 0;
 }
 
+// TODO mas?
 int swap(size_t* mas, size_t index)
 {
     check_expression(mas != NULL, POINTER_IS_NULL);
@@ -295,10 +326,12 @@ int sort(data* struct_element)
 {
     check_expression(struct_element != NULL, POINTER_IS_NULL);
 
+    // TODO count_changes - bad naming
     int count_changes = 0;
     do
     {
         count_changes = 0;
+        // TODO i? seriously?
         for (size_t i = 0; i < struct_element->number_of_lines - 1; i++)
         {
             if (my_strcmp((struct_element->line)[(struct_element->sorted)[i]],
@@ -366,6 +399,7 @@ int  file_output(const char* filename, const data* struct_element, const size_t*
     check_expression(type_of_output != NULL, POINTER_IS_NULL);
     check_expression(struct_element != NULL, POINTER_IS_NULL);
 
+    / /TODO ptr?
     char* ptr         = NULL;
     char* end_of_line = NULL;
     FILE* file = fopen(filename, mode);
@@ -394,6 +428,7 @@ int init_index_mas(data* struct_element)
 {
     check_expression(struct_element != NULL, POINTER_IS_NULL);
 
+    // TODO fuck you and fuck this 'i' letter
     for (size_t i = 0; i < struct_element->number_of_lines; i++)
     {
         (struct_element->original)[i] = i;

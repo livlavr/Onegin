@@ -4,7 +4,10 @@
 enum TYPE_OF_ERROR
 {
     POINTER_IS_NULL = 1,
-    DOUBLE_IS_NAN = 2
+    DOUBLE_IS_NAN   = 2,
+    FILE_OPEN_ERROR = 3,
+    FILE_READ_ERROR = 4,
+    FSTAT_ERROR     = 5
 };
 
 #ifndef NDEBUG

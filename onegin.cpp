@@ -34,7 +34,7 @@ int  swap(lines_in_text* text, size_t number_of_line);
 int  skip_spaces_and_punctuation(char* pointer);
 int  my_strcmp        (lines_in_text* line1, lines_in_text* line2);
 int  my_reverse_strcmp(char* line1, char* line2);
-int  sort             (text_parameters* text_and_parameters);
+int  sort             (text_parameters* text_and_parameters, my_strcmp_t my_strcmp);
 int  free_buffer      (text_parameters* text_and_parameters);
 int  count_lines      (text_parameters* text_and_parameters);
 int  reverse_sort     (text_parameters* text_and_parameters);
@@ -63,7 +63,7 @@ int main()
     const char* filename = "onegin.txt";
     // const char* output_file = "output_to_console.txt";
     data_init(filename, &onegin);
-    sort(&onegin); //
+    sort(&onegin, my_strcmp); //
     output_to_console(&onegin); //
 
     // reverse_sort(&onegin);
@@ -183,7 +183,7 @@ int array_of_pointers(text_parameters* text_and_parameters) //TODO rename
     return 0;
 }
 
-int sort(text_parameters* text_and_parameters)
+int sort(text_parameters* text_and_parameters, my_strcmp_t my_strcmp)
 {
     check_expression(text_and_parameters != NULL, POINTER_IS_NULL);
 
@@ -393,11 +393,9 @@ int output_to_console(text_parameters* text_and_parameters)
 //     return 0;
 // }
 
-int free_buffer(text_parameters* text_and_parameters)
+int free_buffer(text_parameters* text_and_parameters) //TODO clean pointers
 {
     check_expression(text_and_parameters != NULL, POINTER_IS_NULL);
-
-    free(text_and_parameters->text);
     free(text_and_parameters->buffer);
     text_and_parameters->number_of_lines = 0;
     text_and_parameters->size_of_text    = 0;

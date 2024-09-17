@@ -14,7 +14,7 @@ enum ASCII
     b_CODE = 122
 };
 
-struct lines_in_text
+struct strings
 {
     char*  line           = NULL;
     size_t length_of_line = 0;
@@ -22,19 +22,19 @@ struct lines_in_text
 
 struct text_parameters
 {
-    lines_in_text* text                = NULL;
+    strings* text                = NULL;
     char*          buffer              = NULL;
     size_t         number_of_lines     = 0;
     size_t         size_of_text        = 0;
 };
 
-typedef int my_strcmp_t (lines_in_text* line1, lines_in_text* line2);
+typedef int my_strcmp_t (strings* line1, strings* line2);
 
-int  swap(lines_in_text* text, size_t number_of_line);
-int  skip_spaces_and_punctuation(char* pointer, int direction);
-int  my_strcmp        (lines_in_text* line1, lines_in_text* line2);
-int  my_reverse_strcmp(lines_in_text* line1, lines_in_text* line2);
-int return_to_original(lines_in_text* line1, lines_in_text* line2);
+int  swap(strings* text, size_t number_of_line);
+int  skip_spaces_and_punctuation(char** pointer, int direction);
+int  my_strcmp        (strings* line1, strings* line2);
+int  my_reverse_strcmp(strings* line1, strings* line2);
+int  return_to_original(strings* line1, strings* line2);
 int  sort             (text_parameters* text_and_parameters, my_strcmp_t my_strcmp);
 int  free_buffer      (text_parameters* text_and_parameters);
 int  count_lines      (text_parameters* text_and_parameters);
@@ -49,13 +49,14 @@ int  file_output      (const char* filename, const text_parameters* text_and_par
                        const size_t* type_of_output, const char* mode);
 
 /*
+flags -o
 git sub module
-custom free with define
-symbols are important
 custom_sort like qsort parameters
-
+strchr
+get opt?
 unicode
 алгоритм qsort
+процессор опций
 */
 
 int main()
@@ -64,8 +65,8 @@ int main()
     const char* filename = "onegin.txt";
     // const char* output_file = "output_to_console.txt";
     data_init(filename, &onegin);
-    sort(&onegin, my_strcmp); //
-    output_to_console(&onegin); //
+    sort(&onegin, my_strcmp);
+    output_to_console(&onegin);
     sort(&onegin, my_reverse_strcmp);
     output_to_console(&onegin);
     sort(&onegin, return_to_original);
@@ -96,7 +97,7 @@ int text_init(const char* filename, text_parameters* text_and_parameters)
 
     text_scan(filename, text_and_parameters);
     count_lines(text_and_parameters);
-    text_and_parameters->text = (lines_in_text*)calloc(text_and_parameters->number_of_lines, sizeof(lines_in_text));
+    text_and_parameters->text = (strings*)calloc(text_and_parameters->number_of_lines, sizeof(strings));
     array_of_pointers(text_and_parameters);
 
     return 0;
@@ -172,10 +173,10 @@ int array_of_pointers(text_parameters* text_and_parameters) //TODO rename
 
         if (*current_char == '\n')
         {
-            text_and_parameters->text[number_of_line].line = current_char + 1;
-            text_and_parameters->text[number_of_line - 1].length_of_line = length_of_line;
-            // printf ("!<%lu>!\n", length_of_line);
-            number_of_line++;
+                text_and_parameters->text[number_of_line].line = current_char + 1;
+                text_and_parameters->text[number_of_line - 1].length_of_line = length_of_line;
+                // printf ("!<%lu>!\n", length_of_line);
+                number_of_line++;
             length_of_line = 0;
         }
     }
@@ -211,29 +212,7 @@ int sort(text_parameters* text_and_parameters, my_strcmp_t my_strcmp)
     return 0;
 }
 
-// int reverse_sort(text_parameters* text_and_parameters)
-// {
-//     check_expression(text_and_parameters != NULL, POINTER_IS_NULL);
-//
-//     int count_changes = 0;
-//     do
-//     {
-//         count_changes = 0;
-//         for (size_t number_of_line = 0; number_of_line < text_and_parameters->number_of_lines - 1; number_of_line++)
-//         {
-//             if (my_reverse_strcmp((text_and_parameters->text)[(text_and_parameters->reverse_sorted_text)[number_of_line] + 1],
-//                                   (text_and_parameters->text)[(text_and_parameters->reverse_sorted_text)[number_of_line + 1] + 1]) > 0)
-//             {
-//                 swap((text_and_parameters->reverse_sorted_text), number_of_line);
-//                 count_changes += 1;
-//             }
-//         }
-//     } while (count_changes != 0);
-//
-//     return 0;
-// }
-
-int return_to_original(lines_in_text* line1, lines_in_text* line2)
+int return_to_original(strings* line1, strings* line2)
 {
     check_expression(line1 != NULL, POINTER_IS_NULL);
     check_expression(line2 != NULL, POINTER_IS_NULL);
@@ -241,7 +220,7 @@ int return_to_original(lines_in_text* line1, lines_in_text* line2)
     return (int)(line1->line - line2->line);
 }
 
-int my_strcmp(lines_in_text* line1, lines_in_text* line2)
+int my_strcmp(strings* line1, strings* line2) //const?
 {
     check_expression(line1 != NULL, POINTER_IS_NULL);
     check_expression(line2 != NULL, POINTER_IS_NULL);
@@ -254,8 +233,8 @@ int my_strcmp(lines_in_text* line1, lines_in_text* line2)
     size_t length2 = line2->length_of_line;
     size_t number_of_char = 0;
     // printf("before <%c|%c>\n", *pointer1, *pointer2); //test
-    skip_spaces_and_punctuation(pointer1, 1); //TODO wtf nihua ne ponyal
-    skip_spaces_and_punctuation(pointer2, 1);
+    skip_spaces_and_punctuation(&pointer1, 1); //TODO wtf nihua ne ponyal
+    skip_spaces_and_punctuation(&pointer2, 1);
     // printf("after <%c|%c>\n", *pointer1, *pointer2); //test
     for (number_of_char = 0; number_of_char < length1 && number_of_char < length2 && ascii_difference == 0; number_of_char++)
     {
@@ -286,23 +265,23 @@ int my_strcmp(lines_in_text* line1, lines_in_text* line2)
     return ascii_difference;
 }
 
-int skip_spaces_and_punctuation(char* pointer, int direction) //TODO change len
+int skip_spaces_and_punctuation(char** pointer, int direction) //TODO change len
 {
     check_expression(pointer != NULL, POINTER_IS_NULL);
 
     // printf("pointer_before - %c\n", *pointer); //test
 
-    while (!isalpha(*pointer))
+    while (!isalpha(**pointer))
     {
         // printf("%c>>", *pointer); //test
-        pointer += direction;
+        *pointer += direction;
         // printf("%c\n", *pointer); //test
     }
     // printf("pointer_after - %c\n", *pointer); //test
     return 0;
 }
 
-int swap(lines_in_text* text, size_t number_of_line)
+int swap(strings* text, size_t number_of_line)
 {
     check_expression(text != NULL, POINTER_IS_NULL);
 
@@ -312,7 +291,7 @@ int swap(lines_in_text* text, size_t number_of_line)
     text[number_of_line].length_of_line = text[number_of_line + 1].length_of_line;
     text[number_of_line + 1].line = char_transit;
     text[number_of_line + 1].length_of_line = size_t_transit;
-    // lines_in_text transit = {};
+    // strings transit = {};
     // transit                       = text[number_of_line];
     // text[number_of_line]       = text[number_of_line + 1];
     // text[number_of_line + 1] = transit;
@@ -323,22 +302,22 @@ int swap(lines_in_text* text, size_t number_of_line)
 }
 
 
-int my_reverse_strcmp(lines_in_text* line1, lines_in_text* line2) //TODO rename
+int my_reverse_strcmp(strings* line1, strings* line2) //TODO rename
 {
     check_expression(line1 != NULL, POINTER_IS_NULL);
     check_expression(line2 != NULL, POINTER_IS_NULL);
 
     int ascii_difference = 0;
-    char* pointer1       = line1->line + line1->length_of_line - 2;
-    char* pointer2       = line2->line + line2->length_of_line - 2;
+    char* pointer1       = line1->line + line1->length_of_line - 1;
+    char* pointer2       = line2->line + line2->length_of_line - 1;
     char char1           = *pointer1;
     char char2           = *pointer2;
     size_t length1 = line1->length_of_line;
     size_t length2 = line2->length_of_line;
     size_t number_of_char = 0;
 
-    skip_spaces_and_punctuation(pointer1, -1);
-    skip_spaces_and_punctuation(pointer2, -1);
+    skip_spaces_and_punctuation(&pointer1, -1);
+    skip_spaces_and_punctuation(&pointer2, -1);
 
     for (number_of_char = 0; number_of_char < length1 && number_of_char < length2 && ascii_difference == 0; number_of_char++)
     {
@@ -374,18 +353,22 @@ int output_to_console(text_parameters* text_and_parameters)
 {
     check_expression(text_and_parameters != NULL, POINTER_IS_NULL);
 
-    char* current_char = NULL;
-    for (size_t number_of_line = 0; number_of_line < text_and_parameters->number_of_lines; number_of_line++)
+    size_t number_of_line = 0;
+    char*  line           = NULL;
+
+    for (number_of_line = 0; number_of_line < text_and_parameters->number_of_lines; number_of_line++)
     {
-        current_char = text_and_parameters->text[number_of_line].line;
-        for (size_t number_of_current_char = 0; number_of_current_char < text_and_parameters->text[number_of_line].length_of_line; number_of_current_char++)
+        line = text_and_parameters->text[number_of_line].line;
+        for (size_t number_of_char = 0; number_of_char < text_and_parameters->text[number_of_line].length_of_line; number_of_char++)
         {
-            printf("%c", *current_char);
-            current_char++;
+            if (!(line[number_of_char] == '\n' && number_of_char == 0))
+            {
+                printf("%c", line[number_of_char]);
+            }
+            // printf("<%c|%d|%lu|%lu>\n", line[number_of_char], line[number_of_char], text_and_parameters->text[number_of_line].length_of_line, number_of_line);
         }
     }
     printf("\n");
-
     return 0;
 }
 

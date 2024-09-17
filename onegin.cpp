@@ -31,9 +31,10 @@ struct text_parameters
 typedef int my_strcmp_t (lines_in_text* line1, lines_in_text* line2);
 
 int  swap(lines_in_text* text, size_t number_of_line);
-int  skip_spaces_and_punctuation(char* pointer);
+int  skip_spaces_and_punctuation(char* pointer, int direction);
 int  my_strcmp        (lines_in_text* line1, lines_in_text* line2);
-int  my_reverse_strcmp(char* line1, char* line2);
+int  my_reverse_strcmp(lines_in_text* line1, lines_in_text* line2);
+int return_to_original(lines_in_text* line1, lines_in_text* line2);
 int  sort             (text_parameters* text_and_parameters, my_strcmp_t my_strcmp);
 int  free_buffer      (text_parameters* text_and_parameters);
 int  count_lines      (text_parameters* text_and_parameters);
@@ -65,8 +66,10 @@ int main()
     data_init(filename, &onegin);
     sort(&onegin, my_strcmp); //
     output_to_console(&onegin); //
-
-    // reverse_sort(&onegin);
+    sort(&onegin, my_reverse_strcmp);
+    output_to_console(&onegin);
+    sort(&onegin, return_to_original);
+    output_to_console(&onegin);
 
 
     // file_output(output_file, &onegin, onegin.sorted_text, "w");
@@ -115,7 +118,7 @@ int text_scan(const char* filename, text_parameters* text_and_parameters) //TODO
     check_expression(stat_value_check != -1, FSTAT_ERROR);
 
     text_and_parameters->size_of_text = (size_t)buf.st_size + 1;
-    printf("buf.st_size - %lu\n", (size_t)buf.st_size);
+    // printf("buf.st_size - %lu\n", (size_t)buf.st_size);
     text_and_parameters->buffer = (char*)calloc(text_and_parameters->size_of_text, sizeof(char));
 
     size_t fread_value_check = 0;
@@ -125,8 +128,8 @@ int text_scan(const char* filename, text_parameters* text_and_parameters) //TODO
     check_expression(fread_value_check != 0, FILE_READ_ERROR);
 
     fclose(file);
-    printf("last sign - %d\n", text_and_parameters->buffer[text_and_parameters->size_of_text - 1]);
-    printf("last last sign - %d\n", text_and_parameters->buffer[text_and_parameters->size_of_text - 2]);
+    // printf("last sign - %d\n", text_and_parameters->buffer[text_and_parameters->size_of_text - 1]);
+    // printf("last last sign - %d\n", text_and_parameters->buffer[text_and_parameters->size_of_text - 2]);
     return 0;
 }
 
@@ -140,11 +143,11 @@ int count_lines(text_parameters* text_and_parameters)
         if (*current_char == '\n')
         {
             text_and_parameters->number_of_lines++;
-            printf("char - %d\n", *current_char);
+            // printf("char - %d\n", *current_char);
         }
         current_char++;
     }
-    printf("number of lines - %lu\n", text_and_parameters->number_of_lines);
+    // printf("number of lines - %lu\n", text_and_parameters->number_of_lines);
     return 0;
 }
 
@@ -157,7 +160,7 @@ int array_of_pointers(text_parameters* text_and_parameters) //TODO rename
     char* current_char                = text_and_parameters->buffer;
 
     text_and_parameters->text[number_of_line].line = current_char;
-    printf ("<%c|%d|%lu|%lu>\n", *text_and_parameters->text[number_of_line].line, *text_and_parameters->text[number_of_line].line, number_of_line, length_of_line);
+    // printf ("<%c|%d|%lu|%lu>\n", *text_and_parameters->text[number_of_line].line, *text_and_parameters->text[number_of_line].line, number_of_line, length_of_line);
     number_of_line++;
     length_of_line++;
 
@@ -165,20 +168,20 @@ int array_of_pointers(text_parameters* text_and_parameters) //TODO rename
     {
         length_of_line++;
 
-        printf ("<%c|%d|%lu|%lu>\n", *current_char, *current_char, number_of_line, length_of_line);
+        // printf ("<%c|%d|%lu|%lu>\n", *current_char, *current_char, number_of_line, length_of_line);
 
         if (*current_char == '\n')
         {
             text_and_parameters->text[number_of_line].line = current_char + 1;
             text_and_parameters->text[number_of_line - 1].length_of_line = length_of_line;
-            printf ("!<%lu>!\n", length_of_line);
+            // printf ("!<%lu>!\n", length_of_line);
             number_of_line++;
             length_of_line = 0;
         }
     }
 
     text_and_parameters->text[number_of_line - 1].length_of_line = length_of_line;
-    printf("!<%lu>!\n", length_of_line);
+    // printf("!<%lu>!\n", length_of_line);
 
     return 0;
 }
@@ -193,12 +196,12 @@ int sort(text_parameters* text_and_parameters, my_strcmp_t my_strcmp)
         count_changes = 0;
          for (size_t number_of_line = 0; number_of_line < text_and_parameters->number_of_lines - 1; number_of_line++)
         {
-            printf("sort\n");
-            printf("<%lu|%lu>\n", number_of_line, number_of_line + 1);
-            printf("<%d>\n", (my_strcmp(&text_and_parameters->text[number_of_line], &text_and_parameters->text[number_of_line + 1])));
+            // printf("sort\n");
+            // printf("<%lu|%lu>\n", number_of_line, number_of_line + 1);
+            // printf("<%d>\n", (my_strcmp(&text_and_parameters->text[number_of_line], &text_and_parameters->text[number_of_line + 1])));
             if (my_strcmp(&text_and_parameters->text[number_of_line], &text_and_parameters->text[number_of_line + 1]) > 0)
             {
-                printf("CHANGED\n");
+                // printf("CHANGED\n");
                 swap(text_and_parameters->text, number_of_line);
                 count_changes += 1;
             }
@@ -230,6 +233,14 @@ int sort(text_parameters* text_and_parameters, my_strcmp_t my_strcmp)
 //     return 0;
 // }
 
+int return_to_original(lines_in_text* line1, lines_in_text* line2)
+{
+    check_expression(line1 != NULL, POINTER_IS_NULL);
+    check_expression(line2 != NULL, POINTER_IS_NULL);
+    // printf("%d", (line1->line - line2->line));
+    return (int)(line1->line - line2->line);
+}
+
 int my_strcmp(lines_in_text* line1, lines_in_text* line2)
 {
     check_expression(line1 != NULL, POINTER_IS_NULL);
@@ -242,10 +253,10 @@ int my_strcmp(lines_in_text* line1, lines_in_text* line2)
     size_t length1 = line1->length_of_line;
     size_t length2 = line2->length_of_line;
     size_t number_of_char = 0;
-
-    skip_spaces_and_punctuation(pointer1);
-    skip_spaces_and_punctuation(pointer2);
-
+    // printf("before <%c|%c>\n", *pointer1, *pointer2); //test
+    skip_spaces_and_punctuation(pointer1, 1); //TODO wtf nihua ne ponyal
+    skip_spaces_and_punctuation(pointer2, 1);
+    // printf("after <%c|%c>\n", *pointer1, *pointer2); //test
     for (number_of_char = 0; number_of_char < length1 && number_of_char < length2 && ascii_difference == 0; number_of_char++)
     {
         char1 = (char)tolower(*pointer1);
@@ -275,15 +286,19 @@ int my_strcmp(lines_in_text* line1, lines_in_text* line2)
     return ascii_difference;
 }
 
-int skip_spaces_and_punctuation(char* pointer)
+int skip_spaces_and_punctuation(char* pointer, int direction) //TODO change len
 {
     check_expression(pointer != NULL, POINTER_IS_NULL);
 
+    // printf("pointer_before - %c\n", *pointer); //test
+
     while (!isalpha(*pointer))
     {
-        pointer++;
+        // printf("%c>>", *pointer); //test
+        pointer += direction;
+        // printf("%c\n", *pointer); //test
     }
-
+    // printf("pointer_after - %c\n", *pointer); //test
     return 0;
 }
 
@@ -308,37 +323,48 @@ int swap(lines_in_text* text, size_t number_of_line)
 }
 
 
-int my_reverse_strcmp(char* line1, char* line2)
+int my_reverse_strcmp(lines_in_text* line1, lines_in_text* line2) //TODO rename
 {
     check_expression(line1 != NULL, POINTER_IS_NULL);
     check_expression(line2 != NULL, POINTER_IS_NULL);
 
     int ascii_difference = 0;
-    char* pointer1       = line1 - 2;
-    char* pointer2       = line2 - 2;
+    char* pointer1       = line1->line + line1->length_of_line - 2;
+    char* pointer2       = line2->line + line2->length_of_line - 2;
     char char1           = *pointer1;
     char char2           = *pointer2;
+    size_t length1 = line1->length_of_line;
+    size_t length2 = line2->length_of_line;
+    size_t number_of_char = 0;
 
-    skip_spaces_and_punctuation(pointer1);
-    skip_spaces_and_punctuation(pointer2);
+    skip_spaces_and_punctuation(pointer1, -1);
+    skip_spaces_and_punctuation(pointer2, -1);
 
-    while (ascii_difference == 0)
+    for (number_of_char = 0; number_of_char < length1 && number_of_char < length2 && ascii_difference == 0; number_of_char++)
     {
+        // printf("<%c|%c>\n", *pointer1, *pointer2);
         char1 = (char)tolower(*pointer1);
         char2 = (char)tolower(*pointer2);
-
-        if (char1 == '\n' || char1 == EOF)
-        {
-            return (char2 == '\n' || char2 == EOF) ? 0 : -1;
-        }
-        if (char2 == '\n' || char2 == EOF)
-        {
-            return 1;
-        }
 
         ascii_difference += char1 - char2;
         pointer1--;
         pointer2--;
+    }
+
+    if (ascii_difference == 0)
+    {
+        if (length1 < length2)
+        {
+            return -1;
+        }
+        else if (length1 > length2)
+        {
+            return 1;
+        }
+        else
+        {
+            return 0;
+        }
     }
 
     return ascii_difference;

@@ -32,4 +32,4 @@
 *.app
 
 #dSYM
-*.dSUM/
+onegin.out.dSUM/

@@ -1,7 +1,7 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
-#include <ctype.h>
 
 #include "check_expression.h"
 
@@ -19,20 +19,23 @@ struct text_parameters
     size_t         size_of_text        = 0;
 };
 
+// TODO write qsort and split into files
+
 typedef int my_strcmp_t(void* line_ptr1, void* line_ptr2);
 
-int  text_init         (const char* filename, text_parameters* text_and_parameters);
-int  text_scan         (const char* filename, text_parameters* text_and_parameters);
-int  count_lines       (text_parameters* text_and_parameters);
-int  array_of_pointers (text_parameters* text_and_parameters);
-int  my_sort           (void* ptr, size_t count, my_strcmp_t my_strcmp);
-int  return_to_original(void* line_ptr1, void* line_ptr2);
-int  my_strcmp         (void* line_ptr1, void* line_ptr2);
-int  my_reverse_strcmp (void* line_ptr1, void* line_ptr2);
-int  swap              (void* text_ptr, size_t number_of_line);
-int  output_to_console (text_parameters* text_and_parameters);
-int  file_output       (const char* filename, const text_parameters* text_and_parameters, const char* mode); //TODO \0???
-int  free_buffer       (text_parameters* text_and_parameters);
+// TODO read about static functions
+int  init_text              (const char* filename, text_parameters* text_and_parameters);
+int  scan_text              (const char* filename, text_parameters* text_and_parameters);
+int  count_lines            (text_parameters* text_and_parameters);
+int  init_strings           (text_parameters* text_and_parameters);
+int  my_sort                (void* ptr, size_t count, my_strcmp_t my_strcmp);
+int  return_text_to_original(void* line_ptr1, void* line_ptr2);
+int  my_strcmp              (void* line_ptr1, void* line_ptr2);
+int  my_reverse_strcmp      (void* line_ptr1, void* line_ptr2);
+int  swap                   (void* text_ptr, size_t number_of_line);
+int  output_to_console      (text_parameters* text_and_parameters);
+int  output_text_to_file    (const char* filename, const text_parameters* text_and_parameters, const char* mode); //TODO \0
+int  free_memory            (text_parameters* text_and_parameters);
 int  skip_spaces_and_punctuation(char** pointer, int direction);
 
 /*
@@ -49,39 +52,40 @@ int main()
 {
     text_parameters onegin = {};
 
-    const char* filename = "texts/onegin.txt";
+    const char* filename    = "texts/onegin.txt";
     const char* output_file = "texts/output_to_console.txt";
 
-    text_init(filename, &onegin);
+    init_text(filename, &onegin);
 
     my_sort    (onegin.text, onegin.number_of_lines, my_strcmp);
-    file_output(output_file, &onegin, "w");
+    output_text_to_file(output_file, &onegin, "w");
     output_to_console(&onegin);
 
     my_sort    (onegin.text, onegin.number_of_lines, my_reverse_strcmp);
-    file_output(output_file, &onegin, "a");
+    output_text_to_file(output_file, &onegin, "a");
     output_to_console(&onegin);
 
-    my_sort    (onegin.text, onegin.number_of_lines, return_to_original);
-    file_output(output_file, &onegin, "a");
+    // TODO use libc qsort (only here)
+    // qsort(onegin.text, onegin.number_of_lines, sizeof(char), return_text_to_original);
+    output_text_to_file(output_file, &onegin, "a");
     output_to_console(&onegin);
 
-    free_buffer(&onegin);
+    free_memory(&onegin);
 }
 
-int text_init(const char* filename, text_parameters* text_and_parameters)
+int init_text(const char* filename, text_parameters* text_and_parameters)
 {
     check_expression (filename            != NULL, POINTER_IS_NULL);
     check_expression (text_and_parameters != NULL, POINTER_IS_NULL);
 
-    text_scan        (filename, text_and_parameters);
-    count_lines      (text_and_parameters);
-    array_of_pointers(text_and_parameters);
+    scan_text   (filename, text_and_parameters);
+    count_lines (text_and_parameters);
+    init_strings(text_and_parameters);
 
     return 0;
 }
 
-int text_scan(const char* filename, text_parameters* text_and_parameters) //TODO mn
+int scan_text(const char* filename, text_parameters* text_and_parameters) //TODO mn
 {
     check_expression(filename            != NULL, POINTER_IS_NULL);
     check_expression(text_and_parameters != NULL, POINTER_IS_NULL);
@@ -89,18 +93,19 @@ int text_scan(const char* filename, text_parameters* text_and_parameters) //TODO
     FILE* file      = fopen(filename, "r");
     struct stat buf = {};
 
+    // BUG check fopen result with if (not ASSert)
     check_expression(file != NULL, FILE_OPEN_ERROR);
 
     int stat_value_check = 0;
     stat_value_check     = fstat(fileno(file), &buf);
 
-    check_expression(stat_value_check != -1, FSTAT_ERROR);
+    check_expression(stat_value_check != -1, FSTAT_ERROR); // BUG verify or asserted
 
     text_and_parameters->size_of_text = (size_t)buf.st_size + 1;
-    // printf("buf.st_size - %lu\n", (size_t)buf.st_size);
+    // printf("buf.st_size - %lu\n", (size_t)buf.st_size); // TODO remove
     text_and_parameters->buffer       = (char*)calloc(text_and_parameters->size_of_text, sizeof(char));
 
-    size_t fread_value_check = 0;
+    size_t fread_value_check = 0; // TODO why not one ASSignment
     fread_value_check        = fread(text_and_parameters->buffer, sizeof(char),
                                      text_and_parameters->size_of_text, file);
 
@@ -136,7 +141,7 @@ int count_lines(text_parameters* text_and_parameters)
     return 0;
 }
 
-int array_of_pointers(text_parameters* text_and_parameters) //TODO rename
+int init_strings(text_parameters* text_and_parameters)
 {
     check_expression(text_and_parameters != NULL, POINTER_IS_NULL);
 
@@ -145,6 +150,7 @@ int array_of_pointers(text_parameters* text_and_parameters) //TODO rename
     char* current_char    = text_and_parameters->buffer;
 
     text_and_parameters->text[number_of_line].line = current_char;
+    // TODO write your own debug macro (print like "expr: <expr_val>")
     // printf ("<%c|%d|%lu|%lu>\n", *text_and_parameters->text[number_of_line].line, *text_and_parameters->text[number_of_line].line, number_of_line, length_of_line);
     length_of_line++;
     number_of_line++;
@@ -179,6 +185,7 @@ int array_of_pointers(text_parameters* text_and_parameters) //TODO rename
     return 0;
 }
 
+// TODO pass elem size
 int my_sort(void* ptr, size_t count, my_strcmp_t my_strcmp) //qsort parameters
 {
     check_expression(ptr != NULL, POINTER_IS_NULL);
@@ -210,7 +217,7 @@ int my_sort(void* ptr, size_t count, my_strcmp_t my_strcmp) //qsort parameters
     return 0;
 }
 
-int return_to_original(void* line_ptr1, void* line_ptr2)
+int return_text_to_original(void* line_ptr1, void* line_ptr2)
 {
     check_expression(line_ptr1 != NULL, POINTER_IS_NULL);
     check_expression(line_ptr2 != NULL, POINTER_IS_NULL);
@@ -237,11 +244,12 @@ int my_strcmp(void* line_ptr1, void* line_ptr2) //const?
     size_t number_of_char = 0;
     // printf("before <%c|%c>\n", *pointer1, *pointer2); //test
 
-    skip_spaces_and_punctuation(&pointer1, 1); //TODO wtf nihua ne ponyal
+    skip_spaces_and_punctuation(&pointer1, 1);
     skip_spaces_and_punctuation(&pointer2, 1);
     // printf("after <%c|%c>\n", *pointer1, *pointer2); //test
 
-    for (number_of_char = 0; number_of_char < length1 && number_of_char < length2 && ascii_difference == 0; number_of_char++)
+    for (number_of_char = 0; number_of_char < length1 && number_of_char < length2 && ascii_difference == 0;
+         number_of_char++)
     {
         char1 = (char)tolower(*pointer1);
         char2 = (char)tolower(*pointer2);
@@ -270,6 +278,7 @@ int my_strcmp(void* line_ptr1, void* line_ptr2) //const?
     return ascii_difference;
 }
 
+// TODO read about inline functions
 int skip_spaces_and_punctuation(char** pointer, int direction) //TODO change len
 {
     check_expression(pointer != NULL, POINTER_IS_NULL);
@@ -286,6 +295,7 @@ int skip_spaces_and_punctuation(char** pointer, int direction) //TODO change len
     return 0;
 }
 
+// TODO write unified swap
 int swap(void* text_ptr, size_t number_of_line)
 {
     check_expression(text_ptr != NULL, POINTER_IS_NULL);
@@ -354,6 +364,7 @@ int my_reverse_strcmp(void* line_ptr1, void* line_ptr2) //TODO rename
     return ascii_difference;
 }
 
+// TODO remove
 int output_to_console(text_parameters* text_and_parameters)
 {
     check_expression(text_and_parameters != NULL, POINTER_IS_NULL);
@@ -379,7 +390,9 @@ int output_to_console(text_parameters* text_and_parameters)
     return 0;
 }
 
-int  file_output(const char* filename, const text_parameters* text_and_parameters, const char* mode)
+// TODO use FILE* parameter (to be able to pass stdout)
+// TODO read about stdout and stdin
+int  output_text_to_file(const char* filename, const text_parameters* text_and_parameters, const char* mode)
 {
     check_expression(filename            != NULL, POINTER_IS_NULL);
     check_expression(text_and_parameters != NULL, POINTER_IS_NULL);
@@ -397,7 +410,7 @@ int  file_output(const char* filename, const text_parameters* text_and_parameter
         {
             if (!(line[number_of_char] == '\n' && number_of_char == 0))
             {
-                putc(line[number_of_char], file);
+                putc(line[number_of_char], file); // TODO use something instead of putc
             }
             // printf("<%c|%d|%lu|%lu>\n", line[number_of_char], line[number_of_char], text_and_parameters->text[number_of_line].length_of_line, number_of_line);
         }
@@ -409,7 +422,7 @@ int  file_output(const char* filename, const text_parameters* text_and_parameter
     return 0;
 }
 
-int free_buffer(text_parameters* text_and_parameters) //TODO clean pointers
+int free_memory(text_parameters* text_and_parameters) //TODO clean pointers
 {
     check_expression(text_and_parameters != NULL, POINTER_IS_NULL);
 
@@ -417,6 +430,7 @@ int free_buffer(text_parameters* text_and_parameters) //TODO clean pointers
     text_and_parameters->buffer = NULL;
 
     free(text_and_parameters->text);
+    text_and_parameters->text = NULL;
 
     text_and_parameters->number_of_lines = 0;
     text_and_parameters->size_of_text    = 0;

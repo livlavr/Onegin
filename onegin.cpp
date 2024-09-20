@@ -21,8 +21,6 @@ struct text_parameters
     size_t         size_of_text        = 0;
 };
 
-// TODO write qsort and split into files
-
 typedef int my_strcmp_t(const void* line_ptr1, const void* line_ptr2);
 
 // TODO read about static functions
@@ -96,11 +94,14 @@ int scan_text(const char* filename, text_parameters* text_and_parameters) //TODO
     struct stat buf = {};
 
     // BUG check fopen result with if (not ASSert)
-    check_expression(file != NULL, FILE_OPEN_ERROR);
+    if (file == NULL)
+    {
+        printf("File with %s name doesn't exist", filename);
+    }
 
-    int stat_value_check = fstat(fileno(file), &buf);
+    int stat_value_check = stat(filename, &buf);
 
-    check_expression(stat_value_check != -1, FSTAT_ERROR); // BUG verify or asserted
+    check_expression(stat_value_check != -1, STAT_ERROR); // BUG verify or asserted
 
     text_and_parameters->size_of_text = (size_t)buf.st_size + 1;
     text_and_parameters->buffer       = (char*)calloc(text_and_parameters->size_of_text, sizeof(char));

@@ -10,9 +10,9 @@
 #include "output.h"
 //enum
 
-// static functions
 int  free_memory            (text_parameters* text_and_parameters);
 /*
+static functions?
 flags -o
 git sub module
 strchr
@@ -27,22 +27,25 @@ int main()
 {
     text_parameters onegin = {};
 
-    const char* filename    = "texts/onegin.txt";
-    const char* output_file = "texts/output_to_console.txt";
+    const char* onegin_filename = "texts/onegin.txt";
+    const char* output_filename = "texts/output_to_console.txt";
+    FILE*       output          = fopen(output_filename, "w");
 
-    init_text(filename, &onegin);
+    init_text(onegin_filename, &onegin);
 
     my_sort            (onegin.text, onegin.number_of_lines, sizeof(strings), my_strcmp);
-    output_text_to_file(output_file, &onegin, "w");
-    output_to_console  (&onegin);
+    output_text_to_file(output, &onegin);
+    output_text_to_file(stdout, &onegin);
 
     my_sort            (onegin.text, onegin.number_of_lines, sizeof(strings), my_reverse_strcmp);
-    output_text_to_file(output_file, &onegin, "a");
-    output_to_console  (&onegin);
+    output_text_to_file(output, &onegin);
+    output_text_to_file(stdout, &onegin);
 
     qsort              (onegin.text, onegin.number_of_lines, sizeof(strings), return_text_to_original);
-    output_text_to_file(output_file, &onegin, "a");
-    output_to_console  (&onegin);
+    output_text_to_file(output, &onegin);
+    output_text_to_file(stdout, &onegin);
+
+    fclose(output);
 
     free_memory(&onegin);
 }

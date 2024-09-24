@@ -90,7 +90,7 @@ int my_strcmp(const void* line_ptr1, const void* line_ptr2)
 }
 
 // TODO read about inline functions (why static)
-static inline int skip_spaces_and_punctuation(char** pointer, int direction) //TODO change len
+inline int skip_spaces_and_punctuation(char** pointer, int direction) //TODO change len
 {
     check_expression(pointer != NULL, POINTER_IS_NULL);
 

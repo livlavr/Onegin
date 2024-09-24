@@ -89,8 +89,8 @@ int my_strcmp(const void* line_ptr1, const void* line_ptr2)
     return ascii_difference;
 }
 
-// TODO read about inline functions
-int skip_spaces_and_punctuation(char** pointer, int direction) //TODO change len
+// TODO read about inline functions (why static)
+static inline int skip_spaces_and_punctuation(char** pointer, int direction) //TODO change len
 {
     check_expression(pointer != NULL, POINTER_IS_NULL);
 

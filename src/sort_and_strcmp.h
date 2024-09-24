@@ -8,7 +8,7 @@ int  return_text_to_original    (const void* line_ptr1, const void* line_ptr2);
 int  my_strcmp                  (const void* line_ptr1, const void* line_ptr2);
 int  swap                       (void* ptr1, void* ptr2, size_t size);
 int  my_reverse_strcmp          (const void* line_ptr1, const void* line_ptr2);
-int  skip_spaces_and_punctuation(char** pointer, int direction);
+static inline int  skip_spaces_and_punctuation(char** pointer, int direction);
 
 
 #endif

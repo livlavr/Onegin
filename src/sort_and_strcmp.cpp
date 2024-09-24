@@ -89,7 +89,7 @@ int my_strcmp(const void* line_ptr1, const void* line_ptr2)
     return ascii_difference;
 }
 
-// TODO read about inline functions (why static)
+// TODO read about inline functions (why not static?)
 inline int skip_spaces_and_punctuation(char** pointer, int direction) //TODO change len
 {
     check_expression(pointer != NULL, POINTER_IS_NULL);
@@ -102,7 +102,7 @@ inline int skip_spaces_and_punctuation(char** pointer, int direction) //TODO cha
     return 0;
 }
 
-int swap(void* ptr1, void* ptr2, size_t size)
+inline int swap(void* ptr1, void* ptr2, size_t size)
 {
     check_expression(ptr1 != NULL, POINTER_IS_NULL);
     check_expression(ptr2 != NULL, POINTER_IS_NULL);

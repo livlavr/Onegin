@@ -1,10 +1,11 @@
 CXX          = gcc-14
 
-SRC          = main.cpp process_text.cpp sort_and_strcmp.cpp
+SRC          = main.cpp process_text.cpp sort_and_strcmp.cpp output.cpp
 
 BUILD_DIR    = ./build/
+SRC_DIR      = ./src/
 
-TARGET       = onegin
+TARGET       = onegin.out
 OBJECT       = $(patsubst %.cpp, %.o, $(SRC))
 BUILD_OBJ    = $(addprefix $(BUILD_DIR), $(OBJECT))
 
@@ -28,12 +29,14 @@ DED_FLAGS    = -D _DEBUG -ggdb2 -std=c++17 -O0 -Wall -Wextra -Weffc++           
 				-Wlarger-than=8192 -Wstack-usage=8192 -pie -fPIE -Werror=vla
 
 vpath %.o $(BUILD_DIR)
+vpath %.cpp $(SRC_DIR)
+vpath %.h $(SRC_DIR)
 
 .PHONY: clean all
 all   : $(TARGET)
 
 $(TARGET) :  $(BUILD_DIR) $(OBJECT)
-	$(CXX)   $(BUILD_OBJ) -o $(addprefix $(BUILD_DIR), $(TARGET))
+	$(CXX)   $(BUILD_OBJ) -o $(TARGET)
 	@printf "$(GREEN_TEXT)$(TARGET) COMPILED$(DEFAULT_TEXT)\n"
 
 $(BUILD_DIR) :
@@ -42,13 +45,13 @@ $(BUILD_DIR) :
 $(OBJECT) : %.o : %.cpp
 	$(CXX) -c $^ -o $(addprefix $(BUILD_DIR), $@)
 
-ded : $(SRC)
-	$(CXX) $^ -o $(addprefix $(BUILD_DIR), $(TARGET)) $(DED_FLAGS)
+ded : $(addprefix $(SRC_DIR), $(SRC))
+	$(CXX) $^ -o $(TARGET) $(DED_FLAGS)
 	@printf "$(YELLOW_TEXT)SKOLKO MOJNO BOJE MOY BLYAT'$(DEFAULT_TEXT)\n"
 
 doxy :
 	doxygen
 
 clean :
-	@rm -f -r $(addprefix $(BUILD_DIR), *.o $(TARGET) *.dSYM)
+	@rm -f -r $(addprefix $(BUILD_DIR), *.o) $(TARGET) *.dSYM
 	@printf  "$(YELLOW_TEXT)$(TARGET) CLEANED$(DEFAULT_TEXT)\n"

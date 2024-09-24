@@ -7,18 +7,18 @@ relocations:
   - { offsetInCU: 0xC20, offset: 0xC20, size: 0x8, addend: 0x0, symName: __Z19output_text_to_filePKcPK15text_parametersS0_, symObjAddr: 0x10CC, symBinAddr: 0x1000035C4, symSize: 0x1F0 }
   - { offsetInCU: 0xCE5, offset: 0xCE5, size: 0x8, addend: 0x0, symName: __Z17output_to_consoleP15text_parameters, symObjAddr: 0xF9C, symBinAddr: 0x100003494, symSize: 0x130 }
   - { offsetInCU: 0xD73, offset: 0xD73, size: 0x8, addend: 0x0, symName: __Z17my_reverse_strcmpPKvS0_, symObjAddr: 0xD74, symBinAddr: 0x10000326C, symSize: 0x228 }
-  - { offsetInCU: 0xE56, offset: 0xE56, size: 0x8, addend: 0x0, symName: __Z4swapPvS_m, symObjAddr: 0xC34, symBinAddr: 0x10000312C, symSize: 0x140 }
-  - { offsetInCU: 0xF4E, offset: 0xF4E, size: 0x8, addend: 0x0, symName: __Z27skip_spaces_and_punctuationPPci, symObjAddr: 0xB68, symBinAddr: 0x100003060, symSize: 0xCC }
-  - { offsetInCU: 0xF8C, offset: 0xF8C, size: 0x8, addend: 0x0, symName: __Z9my_strcmpPKvS0_, symObjAddr: 0x970, symBinAddr: 0x100002E68, symSize: 0x1F8 }
-  - { offsetInCU: 0x10AC, offset: 0x10AC, size: 0x8, addend: 0x0, symName: __Z23return_text_to_originalPKvS0_, symObjAddr: 0x894, symBinAddr: 0x100002D8C, symSize: 0xDC }
-  - { offsetInCU: 0x1116, offset: 0x1116, size: 0x8, addend: 0x0, symName: __Z7my_sortPvmmPFiPKvS1_E, symObjAddr: 0x74C, symBinAddr: 0x100002C44, symSize: 0x148 }
-  - { offsetInCU: 0x11ED, offset: 0x11ED, size: 0x8, addend: 0x0, symName: __Z12init_stringsP15text_parameters, symObjAddr: 0x5C8, symBinAddr: 0x100002AC0, symSize: 0x184 }
-  - { offsetInCU: 0x126E, offset: 0x126E, size: 0x8, addend: 0x0, symName: __Z11count_linesP15text_parameters, symObjAddr: 0x4CC, symBinAddr: 0x1000029C4, symSize: 0xFC }
-  - { offsetInCU: 0x12C0, offset: 0x12C0, size: 0x8, addend: 0x0, symName: __Z9scan_textPKcP15text_parameters, symObjAddr: 0x2A8, symBinAddr: 0x1000027A0, symSize: 0x224 }
-  - { offsetInCU: 0x1356, offset: 0x1356, size: 0x8, addend: 0x0, symName: __Z9init_textPKcP15text_parameters, symObjAddr: 0x1D0, symBinAddr: 0x1000026C8, symSize: 0xD8 }
-  - { offsetInCU: 0x1383, offset: 0x1383, size: 0x8, addend: 0x0, symName: _main, symObjAddr: 0xD4, symBinAddr: 0x1000025CC, symSize: 0xFC }
-  - { offsetInCU: 0x13DF, offset: 0x13DF, size: 0x8, addend: 0x0, symName: __Z7toloweri, symObjAddr: 0xB8, symBinAddr: 0x1000025B0, symSize: 0x1C }
-  - { offsetInCU: 0x1412, offset: 0x1412, size: 0x8, addend: 0x0, symName: __Z7isalphai, symObjAddr: 0x98, symBinAddr: 0x100002590, symSize: 0x20 }
-  - { offsetInCU: 0x1447, offset: 0x1447, size: 0x8, addend: 0x0, symName: __Z8__istypeim, symObjAddr: 0x20, symBinAddr: 0x100002518, symSize: 0x78 }
-  - { offsetInCU: 0x1485, offset: 0x1485, size: 0x8, addend: 0x0, symName: __Z7isasciii, symObjAddr: 0x0, symBinAddr: 0x1000024F8, symSize: 0x20 }
+  - { offsetInCU: 0xE55, offset: 0xE55, size: 0x8, addend: 0x0, symName: __Z4swapPvS_m, symObjAddr: 0xC34, symBinAddr: 0x10000312C, symSize: 0x140 }
+  - { offsetInCU: 0xF49, offset: 0xF49, size: 0x8, addend: 0x0, symName: __Z27skip_spaces_and_punctuationPPci, symObjAddr: 0xB68, symBinAddr: 0x100003060, symSize: 0xCC }
+  - { offsetInCU: 0xF85, offset: 0xF85, size: 0x8, addend: 0x0, symName: __Z9my_strcmpPKvS0_, symObjAddr: 0x970, symBinAddr: 0x100002E68, symSize: 0x1F8 }
+  - { offsetInCU: 0x10A5, offset: 0x10A5, size: 0x8, addend: 0x0, symName: __Z23return_text_to_originalPKvS0_, symObjAddr: 0x894, symBinAddr: 0x100002D8C, symSize: 0xDC }
+  - { offsetInCU: 0x110F, offset: 0x110F, size: 0x8, addend: 0x0, symName: __Z7my_sortPvmmPFiPKvS1_E, symObjAddr: 0x74C, symBinAddr: 0x100002C44, symSize: 0x148 }
+  - { offsetInCU: 0x11E6, offset: 0x11E6, size: 0x8, addend: 0x0, symName: __Z12init_stringsP15text_parameters, symObjAddr: 0x5C8, symBinAddr: 0x100002AC0, symSize: 0x184 }
+  - { offsetInCU: 0x1267, offset: 0x1267, size: 0x8, addend: 0x0, symName: __Z11count_linesP15text_parameters, symObjAddr: 0x4CC, symBinAddr: 0x1000029C4, symSize: 0xFC }
+  - { offsetInCU: 0x12B9, offset: 0x12B9, size: 0x8, addend: 0x0, symName: __Z9scan_textPKcP15text_parameters, symObjAddr: 0x2A8, symBinAddr: 0x1000027A0, symSize: 0x224 }
+  - { offsetInCU: 0x134F, offset: 0x134F, size: 0x8, addend: 0x0, symName: __Z9init_textPKcP15text_parameters, symObjAddr: 0x1D0, symBinAddr: 0x1000026C8, symSize: 0xD8 }
+  - { offsetInCU: 0x137C, offset: 0x137C, size: 0x8, addend: 0x0, symName: _main, symObjAddr: 0xD4, symBinAddr: 0x1000025CC, symSize: 0xFC }
+  - { offsetInCU: 0x13D8, offset: 0x13D8, size: 0x8, addend: 0x0, symName: __Z7toloweri, symObjAddr: 0xB8, symBinAddr: 0x1000025B0, symSize: 0x1C }
+  - { offsetInCU: 0x140B, offset: 0x140B, size: 0x8, addend: 0x0, symName: __Z7isalphai, symObjAddr: 0x98, symBinAddr: 0x100002590, symSize: 0x20 }
+  - { offsetInCU: 0x1440, offset: 0x1440, size: 0x8, addend: 0x0, symName: __Z8__istypeim, symObjAddr: 0x20, symBinAddr: 0x100002518, symSize: 0x78 }
+  - { offsetInCU: 0x147E, offset: 0x147E, size: 0x8, addend: 0x0, symName: __Z7isasciii, symObjAddr: 0x0, symBinAddr: 0x1000024F8, symSize: 0x20 }
 ...
